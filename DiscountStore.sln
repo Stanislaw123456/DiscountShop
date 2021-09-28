@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscountStore", "DiscountStore\DiscountStore.csproj", "{6E5A8B14-2730-4139-8E17-EED47D809BCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscountStoreTests", "DiscountStoreTests\DiscountStoreTests.csproj", "{639EE2B5-838B-4C80-9A1C-AC97E4D0FA4E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E5A8B14-2730-4139-8E17-EED47D809BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E5A8B14-2730-4139-8E17-EED47D809BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E5A8B14-2730-4139-8E17-EED47D809BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E5A8B14-2730-4139-8E17-EED47D809BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{639EE2B5-838B-4C80-9A1C-AC97E4D0FA4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{639EE2B5-838B-4C80-9A1C-AC97E4D0FA4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{639EE2B5-838B-4C80-9A1C-AC97E4D0FA4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{639EE2B5-838B-4C80-9A1C-AC97E4D0FA4E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

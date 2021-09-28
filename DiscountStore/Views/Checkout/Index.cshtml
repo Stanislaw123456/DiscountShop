@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="table-responsive">
+    <table class="table align-items-center table-flush">
+        <thead class="thead-light">
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Sub Total</th>
+            <th scope="col">Discount</th>
+            <th scope="col">Discounted Unit Price</th>
+            <th scope="col">Options</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in ViewBag.cart)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Product.Price.ToString("C2")</td>
+                <td>@item.Quantity</td>
+                <td>@item.SubTotal.ToString("C2")</td>
+                <td>@item.AppliedDiscount?.DiscountType</td>
+                <td>@item.AppliedDiscount?.DiscountedUnitPrice.ToString("C2")</td>
+                <td>
+                    <a asp-controller="Checkout" asp-action="Add" asp-route-productId="@item.Product.Id">+</a>|
+                    <a asp-controller="Checkout" asp-action="Remove" asp-route-productId="@item.Product.Id">-</a>
+                </td>
+            </tr>
+        }
+        <tr>
+            <td></td>
+            <td></td>
+            <td>Total</td>
+            <td>
+                @ViewBag.Total.ToString("C2")
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<a asp-controller="Products" asp-action="index">Go back to products list</a>

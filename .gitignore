@@ -1,0 +1,9 @@
+.idea/
+.sonarqube
+
+.DS_Store
+
+TestResults/
+
+DiscountStore.sln.DotSettings
+DiscountStore.sln.DotSettings.user

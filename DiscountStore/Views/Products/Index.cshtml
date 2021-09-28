@@ -1,0 +1,40 @@
+@model IEnumerable<DiscountStore.Modules.Products.ViewModels.ProductViewModel>
+
+@{
+    ViewData["Title"] = "Product list";
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive">
+        <table class="table align-items-center table-flush">
+            <thead class="thead-light">
+            <tr>
+                <th scope="col">Item Name</th>
+                <th scope="col">Item Price</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var product in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(_ => product.Name)
+                    </td>
+                    <td>
+                        @product.Price.ToString("C2")
+                    </td>
+                    <td>
+                        <a asp-controller="Checkout" asp-action="Add" asp-route-productId="@product.Id">Add to cart</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p class="text-danger">No products were found!</p>
+}
