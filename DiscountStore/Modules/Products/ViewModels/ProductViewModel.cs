@@ -2,7 +2,7 @@ namespace DiscountStore.Modules.Products.ViewModels
 {
     public class ProductViewModel
     {
-        public ProductViewModel(string name, double price, int id)
+        public ProductViewModel(int id, string name, double price)
         {
             Name = name;
             Price = price;
@@ -10,9 +10,7 @@ namespace DiscountStore.Modules.Products.ViewModels
         }
         
         public int Id { get; }
-
         public string Name { get; }
-        
         public double Price { get; }
     }
 }

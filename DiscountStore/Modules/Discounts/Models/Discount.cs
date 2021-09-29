@@ -9,11 +9,14 @@ namespace DiscountStore.Modules.Discounts.Models
     {
         [Key]
         public int Id { get; set; }
+        
         public DiscountType DiscountType { get; set; }
         
         [ForeignKey(nameof(Product))]
         public int ProductId { get; set; }
+        
         public Product Product { get; set; }
+        
         public double DiscountedUnitPrice { get; set; }
     }
 }

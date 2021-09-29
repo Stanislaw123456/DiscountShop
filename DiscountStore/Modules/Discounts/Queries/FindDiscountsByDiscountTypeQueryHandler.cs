@@ -25,8 +25,7 @@ namespace DiscountStore.Modules.Discounts.Queries
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<Discount>> Handle(FindDiscountsByDiscountTypeQuery request,
-            CancellationToken cancellationToken)
+        public async Task<IEnumerable<Discount>> Handle(FindDiscountsByDiscountTypeQuery request, CancellationToken cancellationToken)
         {
             return await _dbContext.Discounts
                 .AsNoTracking()

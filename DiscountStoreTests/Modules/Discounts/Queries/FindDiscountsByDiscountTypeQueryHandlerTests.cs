@@ -68,7 +68,8 @@ namespace DiscountStoreTests.Modules.Discounts.Queries
         }
 
         [Fact]
-        public async Task DatabaseContainTwoDiscountsTwoForXAndSingleThreeForX_GivenTwoForX__ReturnsCollectionWithTwoForXDiscountsOrderedByIdAsc()
+        public async Task
+            DatabaseContainTwoDiscountsTwoForXAndSingleThreeForX_GivenTwoForX__ReturnsCollectionWithTwoForXDiscountsOrderedByIdAsc()
         {
             var discounts = new List<Discount>
             {

@@ -23,16 +23,15 @@ namespace DiscountStore.Modules.Checkout.Commands
         private readonly IEnumerable<IDiscountProvider> _discountProviders;
         private readonly IItemsManipulationService _itemsManipulationService;
 
-        public RemoveItemFromCartCommandHandler(DiscountStoreDbContext discountStoreDbContext,
-            IEnumerable<IDiscountProvider> discountProviders, IItemsManipulationService itemsManipulationService)
+        public RemoveItemFromCartCommandHandler(DiscountStoreDbContext discountStoreDbContext, IEnumerable<IDiscountProvider> discountProviders,
+            IItemsManipulationService itemsManipulationService)
         {
             _discountStoreDbContext = discountStoreDbContext;
             _discountProviders = discountProviders;
             _itemsManipulationService = itemsManipulationService;
         }
 
-        public async Task<IEnumerable<ItemViewModel>> Handle(RemoveItemFromCartCommand request,
-            CancellationToken cancellationToken)
+        public async Task<IEnumerable<ItemViewModel>> Handle(RemoveItemFromCartCommand request, CancellationToken cancellationToken)
         {
             if (request.CurrentCart == null)
             {
@@ -46,7 +45,7 @@ namespace DiscountStore.Modules.Checkout.Commands
 
             var product = _discountStoreDbContext.Products
                 .AsNoTracking()
-                .Select(product => new ProductViewModel(product.Name, product.Price, product.Id))
+                .Select(product => new ProductViewModel(product.Id, product.Name, product.Price))
                 .FirstOrDefault(d => d.Id == request.ProductId);
 
             if (product == null)

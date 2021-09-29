@@ -11,8 +11,8 @@ namespace DiscountStore.Modules.Products.Queries
 {
     public record FindAllProductsQuery()
         : IRequest<IEnumerable<ProductViewModel>>;
-    
-    public class FindAllProductsQueryHandler: IRequestHandler<FindAllProductsQuery, IEnumerable<ProductViewModel>>
+
+    public class FindAllProductsQueryHandler : IRequestHandler<FindAllProductsQuery, IEnumerable<ProductViewModel>>
     {
         private readonly DiscountStoreDbContext _dbContext;
 
@@ -27,7 +27,7 @@ namespace DiscountStore.Modules.Products.Queries
             return await _dbContext.Products
                 .AsNoTracking()
                 .OrderBy(product => product.Id)
-                .Select(product => new ProductViewModel(product.Name, product.Price, product.Id))
+                .Select(product => new ProductViewModel(product.Id, product.Name, product.Price))
                 .ToListAsync(cancellationToken: cancellationToken);
         }
     }

@@ -16,7 +16,6 @@ namespace DiscountStore.Modules.Checkout.ViewModels
         public ProductViewModel Product { get; }
         public int Quantity { get; set; }
         public DiscountViewModel? AppliedDiscount { get; set; }
-
         public double SubTotal
         {
             get

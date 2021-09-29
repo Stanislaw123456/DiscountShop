@@ -24,7 +24,7 @@ namespace DiscountStore.Modules.Products.Controllers
         {
             var query = new FindAllProductsQuery();
             var result = await _mediator.Send(query, cancellationToken);
-            
+
             return View(result);
         }
     }

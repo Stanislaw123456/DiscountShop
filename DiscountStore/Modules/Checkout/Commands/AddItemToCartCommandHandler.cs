@@ -15,14 +15,15 @@ namespace DiscountStore.Modules.Checkout.Commands
 {
     public record AddItemToCartCommand(IEnumerable<ItemViewModel> CurrentCart, int ProductId)
         : IRequest<IEnumerable<ItemViewModel>>;
-        
-    public class AddItemToCartCommandHandler: IRequestHandler<AddItemToCartCommand, IEnumerable<ItemViewModel>>
+
+    public class AddItemToCartCommandHandler : IRequestHandler<AddItemToCartCommand, IEnumerable<ItemViewModel>>
     {
         private readonly DiscountStoreDbContext _discountStoreDbContext;
         private readonly IEnumerable<IDiscountProvider> _discountProviders;
         private readonly IItemsManipulationService _itemsManipulationService;
 
-        public AddItemToCartCommandHandler(DiscountStoreDbContext discountStoreDbContext, IEnumerable<IDiscountProvider> discountProviders, IItemsManipulationService itemsManipulationService)
+        public AddItemToCartCommandHandler(DiscountStoreDbContext discountStoreDbContext, IEnumerable<IDiscountProvider> discountProviders,
+            IItemsManipulationService itemsManipulationService)
         {
             _discountStoreDbContext = discountStoreDbContext;
             _discountProviders = discountProviders;
@@ -35,10 +36,10 @@ namespace DiscountStore.Modules.Checkout.Commands
             {
                 throw new ArgumentNullException(paramName: nameof(request.CurrentCart));
             }
-            
+
             var product = _discountStoreDbContext.Products
                 .AsNoTracking()
-                .Select(product => new ProductViewModel(product.Name, product.Price, product.Id))
+                .Select(product => new ProductViewModel(product.Id, product.Name, product.Price))
                 .FirstOrDefault(d => d.Id == request.ProductId);
 
             if (product == null)
@@ -48,10 +49,11 @@ namespace DiscountStore.Modules.Checkout.Commands
 
             var newCart = new List<ItemViewModel>(request.CurrentCart) { new ItemViewModel(product, 1, null) };
             newCart = _itemsManipulationService.MergeDuplicatesItems(newCart).ToList();
-            
+
             foreach (var discountProvider in _discountProviders)
             {
-                newCart = await discountProvider.ApplyDiscountsAsync(newCart, cancellationToken).ToListAsync(cancellationToken: cancellationToken);
+                newCart = await discountProvider.ApplyDiscountsAsync(newCart, cancellationToken)
+                    .ToListAsync(cancellationToken: cancellationToken);
             }
 
             return _itemsManipulationService.MergeDuplicatesItems(newCart);

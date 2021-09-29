@@ -77,7 +77,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
             }.AsEnumerable();
             var dbContext = DbContexts.For(products);
             var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
-            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel("Product1", 1.0, 1), 1, null) };
+            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 1, null) };
             var command = new AddItemToCartCommand(cart, 2);
 
             var result = await sut.Handle(command, CancellationToken.None);
@@ -100,17 +100,17 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
             var product = new Product { Id = 1 };
             var dbContext = DbContexts.For(product);
             var sut = CreateSut(dbContext, discountsProvider, _itemsManipulationService);
-            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel("Product1", 1.0, 1), 1, null) };
+            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 1, null) };
             var command = new AddItemToCartCommand(cart, 1);
 
             await sut.Handle(command, CancellationToken.None);
 
             await firstDiscountProvider
-                 .Received()
-                 .ApplyDiscountsAsync(
-                     Arg.Any<ICollection<ItemViewModel>>(),
-                     Arg.Any<CancellationToken>())
-                 .ToListAsync();
+                .Received()
+                .ApplyDiscountsAsync(
+                    Arg.Any<ICollection<ItemViewModel>>(),
+                    Arg.Any<CancellationToken>())
+                .ToListAsync();
 
             await secondDiscountProvider
                 .Received()

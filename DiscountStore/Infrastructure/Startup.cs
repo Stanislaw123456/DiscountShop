@@ -45,6 +45,7 @@ namespace DiscountStore.Infrastructure
             services.AddScoped<IDiscountProvider, TwoForXDiscountTypeProvider>();
             services.AddScoped<IDiscountProvider, ThreeForXDiscountTypeProvider>();
             services.AddScoped<IItemsManipulationService, ItemsManipulationService>();
+            services.AddScoped<ICartService, CartService>();
         }
 
         private static void ConfigureInMemoryDatabase(IServiceCollection services)

@@ -65,9 +65,10 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => sut.Handle(command, CancellationToken.None));
         }
-        
+
         [Fact]
-        public async Task GivenCartWithExistingProductIdAndExistingProductIdThatIsNotInCart_ThrowsInvalidOperationException()
+        public async Task
+            GivenCartWithExistingProductIdAndExistingProductIdThatIsNotInCart_ThrowsInvalidOperationException()
         {
             var products = new List<Product>
             {
@@ -76,18 +77,18 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
             }.AsEnumerable();
             var dbContext = DbContexts.For(products);
             var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
-            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel("Product1", 1.0, 2), 1, null) };
+            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(2, "Product1", 1.0), 1, null) };
             var command = new RemoveItemFromCartCommand(cart, 1);
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => sut.Handle(command, CancellationToken.None));
         }
-        
+
         [Fact]
         public async Task GivenCartWithNotExistingProductIdAndMatchingProductId_ThrowsInvalidOperationException()
         {
             var dbContext = DbContexts.Empty();
             var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
-            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel("Product1", 1.0, 1), 1, null) };
+            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 1, null) };
             var command = new RemoveItemFromCartCommand(cart, 1);
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => sut.Handle(command, CancellationToken.None));
@@ -102,16 +103,17 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
             }.AsEnumerable();
             var dbContext = DbContexts.For(products);
             var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
-            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel("Product1", 1.0, 1), 1, null) };
+            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 1, null) };
             var command = new RemoveItemFromCartCommand(cart, 1);
 
             var result = await sut.Handle(command, CancellationToken.None);
 
             Assert.Empty(result);
         }
-        
+
         [Fact]
-        public async Task GivenCartWithItemWithTwoQuantityAndExistingProductId_ReturnsCollectionWithSingleItemWithQuantityOne()
+        public async Task
+            GivenCartWithItemWithTwoQuantityAndExistingProductId_ReturnsCollectionWithSingleItemWithQuantityOne()
         {
             var products = new List<Product>
             {
@@ -119,7 +121,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
             }.AsEnumerable();
             var dbContext = DbContexts.For(products);
             var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
-            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel("Product1", 1.0, 1), 2, null) };
+            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 2, null) };
             var command = new RemoveItemFromCartCommand(cart, 1);
 
             var result = (await sut.Handle(command, CancellationToken.None)).ToList();
@@ -127,27 +129,10 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
             Assert.Single(result);
             Assert.Equal(1, result.First().Quantity);
         }
-        
-        [Fact]
-        public async Task GivenCartWithDiscountedItemWithTwoQuantityAndExistingProductId_ReturnsCollectionWithSingleItemWithQuantityOne()
-        {
-            var products = new List<Product>
-            {
-                new Product { Id = 1 }
-            }.AsEnumerable();
-            var dbContext = DbContexts.For(products);
-            var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
-            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel("Product1", 1.0, 1), 2, new DiscountViewModel(DiscountType.TwoForX, 0.5)) };
-            var command = new RemoveItemFromCartCommand(cart, 1);
 
-            var result = (await sut.Handle(command, CancellationToken.None)).ToList();
-
-            Assert.Single(result);
-            Assert.Equal(1, result.First().Quantity);
-        }
-        
         [Fact]
-        public async Task GivenCartWithDiscountedAndNotDiscountedItemsWithTwoQuantityAndExistingProductId_ReturnsCollectionWithNotDiscountedItemDeducedQuantity()
+        public async Task
+            GivenCartWithDiscountedItemWithTwoQuantityAndExistingProductId_ReturnsCollectionWithSingleItemWithQuantityOne()
         {
             var products = new List<Product>
             {
@@ -157,8 +142,31 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
             var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
             var cart = new List<ItemViewModel>
             {
-                new ItemViewModel(new ProductViewModel("Product1", 1.0, 1), 2, new DiscountViewModel(DiscountType.TwoForX, 0.5)),
-                new ItemViewModel(new ProductViewModel("Product1", 1.0, 1), 2, null)
+                new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 2,
+                    new DiscountViewModel(DiscountType.TwoForX, 0.5))
+            };
+            var command = new RemoveItemFromCartCommand(cart, 1);
+
+            var result = (await sut.Handle(command, CancellationToken.None)).ToList();
+
+            Assert.Single(result);
+            Assert.Equal(1, result.First().Quantity);
+        }
+
+        [Fact]
+        public async Task
+            GivenCartWithDiscountedAndNotDiscountedItemsWithTwoQuantityAndExistingProductId_ReturnsCollectionWithNotDiscountedItemDeducedQuantity()
+        {
+            var products = new List<Product>
+            {
+                new Product { Id = 1 }
+            }.AsEnumerable();
+            var dbContext = DbContexts.For(products);
+            var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
+            var cart = new List<ItemViewModel>
+            {
+                new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 2, new DiscountViewModel(DiscountType.TwoForX, 0.5)),
+                new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 2, null)
             };
             var command = new RemoveItemFromCartCommand(cart, 1);
 
@@ -168,13 +176,13 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
             {
                 Assert.Equal(2, item1.Quantity);
                 Assert.NotNull(item1.AppliedDiscount);
-            },item2 =>
+            }, item2 =>
             {
                 Assert.Equal(1, item2.Quantity);
                 Assert.Null(item2.AppliedDiscount);
             });
         }
-        
+
         [Fact]
         public async Task GivenMatchingCartAndProductId_CallsBothDiscountsProvider()
         {
@@ -189,7 +197,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
             var product = new Product { Id = 1 };
             var dbContext = DbContexts.For(product);
             var sut = CreateSut(dbContext, discountsProvider, _itemsManipulationService);
-            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel("Product1", 1.0, 1), 1, null) };
+            var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 1, null) };
             var command = new RemoveItemFromCartCommand(cart, 1);
 
             await sut.Handle(command, CancellationToken.None);
@@ -212,7 +220,8 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
         private static RemoveItemFromCartCommandHandler CreateSut(DiscountStoreDbContext discountStoreDbContext,
             IEnumerable<IDiscountProvider> discountProviders, IItemsManipulationService itemsManipulationService)
         {
-            return new RemoveItemFromCartCommandHandler(discountStoreDbContext, discountProviders, itemsManipulationService);
+            return new RemoveItemFromCartCommandHandler(discountStoreDbContext, discountProviders,
+                itemsManipulationService);
         }
     }
 }

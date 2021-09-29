@@ -12,7 +12,7 @@ namespace DiscountStore.Modules.Checkout.Services
             {
                 yield break;
             }
-            
+
             foreach (var itemGroup in itemsToMerge.GroupBy(item => item.Product.Id))
             {
                 var discountedItems = itemGroup.Where(item => item.AppliedDiscount != null).ToList();
@@ -27,17 +27,16 @@ namespace DiscountStore.Modules.Checkout.Services
 
                     yield return mergedItem;
                 }
-                
+
                 var regularPricedItems = itemGroup.Where(item => item.AppliedDiscount == null).ToList();
                 if (regularPricedItems.Any())
                 {
                     var regularPricedItem = regularPricedItems.First();
-                    var mergedItem = new ItemViewModel(regularPricedItem.Product, regularPricedItem.Quantity,
-                        regularPricedItem.AppliedDiscount)
+                    var mergedItem = new ItemViewModel(regularPricedItem.Product, regularPricedItem.Quantity, regularPricedItem.AppliedDiscount)
                     {
                         Quantity = regularPricedItems.Sum(item => item.Quantity)
                     };
-                    
+
                     yield return mergedItem;
                 }
             }
