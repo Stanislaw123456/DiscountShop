@@ -21,14 +21,14 @@ namespace DiscountStore.Modules.Checkout.Commands
     {
         private readonly DiscountStoreDbContext _discountStoreDbContext;
         private readonly IEnumerable<IDiscountProvider> _discountProviders;
-        private readonly IItemsManipulationService _itemsManipulationService;
+        private readonly ICartService _cartService;
 
         public RemoveItemFromCartCommandHandler(DiscountStoreDbContext discountStoreDbContext, IEnumerable<IDiscountProvider> discountProviders,
-            IItemsManipulationService itemsManipulationService)
+            ICartService cartService)
         {
             _discountStoreDbContext = discountStoreDbContext;
             _discountProviders = discountProviders;
-            _itemsManipulationService = itemsManipulationService;
+            _cartService = cartService;
         }
 
         public async Task<IEnumerable<ItemViewModel>> Handle(RemoveItemFromCartCommand request, CancellationToken cancellationToken)
@@ -62,7 +62,7 @@ namespace DiscountStore.Modules.Checkout.Commands
                     .ToListAsync(cancellationToken: cancellationToken);
             }
 
-            return _itemsManipulationService.MergeDuplicatesItems(newCart);
+            return _cartService.MergeDuplicatedItems(newCart);
         }
 
         private static void RemoveSingleProductFromCart(RemoveItemFromCartCommand request, List<ItemViewModel> newCart)

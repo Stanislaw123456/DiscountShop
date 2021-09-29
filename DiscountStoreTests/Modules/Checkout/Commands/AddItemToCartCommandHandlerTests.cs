@@ -21,13 +21,13 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
     public class AddItemToCartCommandHandlerTests
     {
         private readonly IEnumerable<IDiscountProvider> _discountProviders;
-        private readonly IItemsManipulationService _itemsManipulationService;
+        private readonly ICartService _cartService;
 
         public AddItemToCartCommandHandlerTests()
         {
             _discountProviders = Substitute.For<IEnumerable<IDiscountProvider>>();
-            _itemsManipulationService = Substitute.For<IItemsManipulationService>();
-            _itemsManipulationService.MergeDuplicatesItems(Arg.Any<IEnumerable<ItemViewModel>>())
+            _cartService = Substitute.For<ICartService>();
+            _cartService.MergeDuplicatedItems(Arg.Any<IEnumerable<ItemViewModel>>())
                 .Returns(callInfo => callInfo.Arg<IEnumerable<ItemViewModel>>());
         }
 
@@ -35,7 +35,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
         public async Task GivenNullCart_ThrowsArgumentNullException()
         {
             var emptyDb = DbContexts.Empty();
-            var sut = CreateSut(emptyDb, _discountProviders, _itemsManipulationService);
+            var sut = CreateSut(emptyDb, _discountProviders, _cartService);
             var command = new AddItemToCartCommand(null, 1);
 
             await Assert.ThrowsAsync<ArgumentNullException>(() => sut.Handle(command, CancellationToken.None));
@@ -45,7 +45,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
         public async Task GivenEmptyCartAndNotExistingProductId_ThrowsInvalidOperationException()
         {
             var emptyDb = DbContexts.Empty();
-            var sut = CreateSut(emptyDb, _discountProviders, _itemsManipulationService);
+            var sut = CreateSut(emptyDb, _discountProviders, _cartService);
             var cart = new List<ItemViewModel>();
             var command = new AddItemToCartCommand(cart, 1);
 
@@ -57,7 +57,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
         {
             var product = new Product { Id = 1 };
             var dbContext = DbContexts.For(product);
-            var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
+            var sut = CreateSut(dbContext, _discountProviders, _cartService);
             var cart = new List<ItemViewModel>();
             var command = new AddItemToCartCommand(cart, 1);
 
@@ -76,7 +76,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
                 new Product { Id = 2 }
             }.AsEnumerable();
             var dbContext = DbContexts.For(products);
-            var sut = CreateSut(dbContext, _discountProviders, _itemsManipulationService);
+            var sut = CreateSut(dbContext, _discountProviders, _cartService);
             var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 1, null) };
             var command = new AddItemToCartCommand(cart, 2);
 
@@ -99,7 +99,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
 
             var product = new Product { Id = 1 };
             var dbContext = DbContexts.For(product);
-            var sut = CreateSut(dbContext, discountsProvider, _itemsManipulationService);
+            var sut = CreateSut(dbContext, discountsProvider, _cartService);
             var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 1, null) };
             var command = new AddItemToCartCommand(cart, 1);
 
@@ -121,9 +121,9 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
         }
 
         private static AddItemToCartCommandHandler CreateSut(DiscountStoreDbContext discountStoreDbContext,
-            IEnumerable<IDiscountProvider> discountProviders, IItemsManipulationService itemsManipulationService)
+            IEnumerable<IDiscountProvider> discountProviders, ICartService cartService)
         {
-            return new AddItemToCartCommandHandler(discountStoreDbContext, discountProviders, itemsManipulationService);
+            return new AddItemToCartCommandHandler(discountStoreDbContext, discountProviders, cartService);
         }
     }
 }

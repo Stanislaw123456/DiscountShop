@@ -20,14 +20,14 @@ namespace DiscountStore.Modules.Checkout.Commands
     {
         private readonly DiscountStoreDbContext _discountStoreDbContext;
         private readonly IEnumerable<IDiscountProvider> _discountProviders;
-        private readonly IItemsManipulationService _itemsManipulationService;
+        private readonly ICartService _cartService;
 
         public AddItemToCartCommandHandler(DiscountStoreDbContext discountStoreDbContext, IEnumerable<IDiscountProvider> discountProviders,
-            IItemsManipulationService itemsManipulationService)
+            ICartService cartService)
         {
             _discountStoreDbContext = discountStoreDbContext;
             _discountProviders = discountProviders;
-            _itemsManipulationService = itemsManipulationService;
+            _cartService = cartService;
         }
 
         public async Task<IEnumerable<ItemViewModel>> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
@@ -48,7 +48,7 @@ namespace DiscountStore.Modules.Checkout.Commands
             }
 
             var newCart = new List<ItemViewModel>(request.CurrentCart) { new ItemViewModel(product, 1, null) };
-            newCart = _itemsManipulationService.MergeDuplicatesItems(newCart).ToList();
+            newCart = _cartService.MergeDuplicatedItems(newCart).ToList();
 
             foreach (var discountProvider in _discountProviders)
             {
@@ -56,7 +56,7 @@ namespace DiscountStore.Modules.Checkout.Commands
                     .ToListAsync(cancellationToken: cancellationToken);
             }
 
-            return _itemsManipulationService.MergeDuplicatesItems(newCart);
+            return _cartService.MergeDuplicatedItems(newCart);
         }
     }
 }
