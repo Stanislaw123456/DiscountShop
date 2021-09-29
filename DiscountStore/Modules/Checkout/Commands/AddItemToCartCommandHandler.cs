@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscountStore.Infrastructure;
-using DiscountStore.Modules.Checkout.Services;
 using DiscountStore.Modules.Checkout.ViewModels;
 using DiscountStore.Modules.Discounts.Providers;
 using DiscountStore.Modules.Products.ViewModels;
@@ -20,14 +19,13 @@ namespace DiscountStore.Modules.Checkout.Commands
     {
         private readonly DiscountStoreDbContext _discountStoreDbContext;
         private readonly IEnumerable<IDiscountProvider> _discountProviders;
-        private readonly ICartService _cartService;
+        private readonly IMediator _mediator;
 
-        public AddItemToCartCommandHandler(DiscountStoreDbContext discountStoreDbContext, IEnumerable<IDiscountProvider> discountProviders,
-            ICartService cartService)
+        public AddItemToCartCommandHandler(DiscountStoreDbContext discountStoreDbContext, IEnumerable<IDiscountProvider> discountProviders, IMediator mediator)
         {
             _discountStoreDbContext = discountStoreDbContext;
             _discountProviders = discountProviders;
-            _cartService = cartService;
+            _mediator = mediator;
         }
 
         public async Task<IEnumerable<ItemViewModel>> Handle(AddItemToCartCommand request, CancellationToken cancellationToken)
@@ -48,7 +46,9 @@ namespace DiscountStore.Modules.Checkout.Commands
             }
 
             var newCart = new List<ItemViewModel>(request.CurrentCart) { new ItemViewModel(product, 1, null) };
-            newCart = _cartService.MergeDuplicatedItems(newCart).ToList();
+            
+            var command = new MergeDuplicatedItemsCommand(newCart);
+            newCart = (await _mediator.Send(command, cancellationToken)).ToList();
 
             foreach (var discountProvider in _discountProviders)
             {
@@ -56,7 +56,8 @@ namespace DiscountStore.Modules.Checkout.Commands
                     .ToListAsync(cancellationToken: cancellationToken);
             }
 
-            return _cartService.MergeDuplicatedItems(newCart);
+            command = new MergeDuplicatedItemsCommand(newCart);
+            return await _mediator.Send(command, cancellationToken);
         }
     }
 }

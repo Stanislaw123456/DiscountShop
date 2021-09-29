@@ -6,12 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscountStore.Infrastructure;
 using DiscountStore.Modules.Checkout.Commands;
-using DiscountStore.Modules.Checkout.Services;
 using DiscountStore.Modules.Checkout.ViewModels;
 using DiscountStore.Modules.Discounts.Providers;
 using DiscountStore.Modules.Products.Models;
 using DiscountStore.Modules.Products.ViewModels;
 using DiscountStoreTests.TestsInfrastructure;
+using MediatR;
 using NSubstitute;
 using Xunit;
 
@@ -21,21 +21,21 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
     public class AddItemToCartCommandHandlerTests
     {
         private readonly IEnumerable<IDiscountProvider> _discountProviders;
-        private readonly ICartService _cartService;
+        private readonly IMediator _mediator;
 
         public AddItemToCartCommandHandlerTests()
         {
             _discountProviders = Substitute.For<IEnumerable<IDiscountProvider>>();
-            _cartService = Substitute.For<ICartService>();
-            _cartService.MergeDuplicatedItems(Arg.Any<IEnumerable<ItemViewModel>>())
-                .Returns(callInfo => callInfo.Arg<IEnumerable<ItemViewModel>>());
+            _mediator = Substitute.For<IMediator>();
+            _mediator.Send(Arg.Any<MergeDuplicatedItemsCommand>(), Arg.Any<CancellationToken>())
+                .Returns(callInfo => callInfo.Arg<MergeDuplicatedItemsCommand>().ItemsToMerge);
         }
 
         [Fact]
         public async Task GivenNullCart_ThrowsArgumentNullException()
         {
             var emptyDb = DbContexts.Empty();
-            var sut = CreateSut(emptyDb, _discountProviders, _cartService);
+            var sut = CreateSut(emptyDb, _discountProviders, _mediator);
             var command = new AddItemToCartCommand(null, 1);
 
             await Assert.ThrowsAsync<ArgumentNullException>(() => sut.Handle(command, CancellationToken.None));
@@ -45,7 +45,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
         public async Task GivenEmptyCartAndNotExistingProductId_ThrowsInvalidOperationException()
         {
             var emptyDb = DbContexts.Empty();
-            var sut = CreateSut(emptyDb, _discountProviders, _cartService);
+            var sut = CreateSut(emptyDb, _discountProviders, _mediator);
             var cart = new List<ItemViewModel>();
             var command = new AddItemToCartCommand(cart, 1);
 
@@ -57,7 +57,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
         {
             var product = new Product { Id = 1 };
             var dbContext = DbContexts.For(product);
-            var sut = CreateSut(dbContext, _discountProviders, _cartService);
+            var sut = CreateSut(dbContext, _discountProviders, _mediator);
             var cart = new List<ItemViewModel>();
             var command = new AddItemToCartCommand(cart, 1);
 
@@ -76,7 +76,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
                 new Product { Id = 2 }
             }.AsEnumerable();
             var dbContext = DbContexts.For(products);
-            var sut = CreateSut(dbContext, _discountProviders, _cartService);
+            var sut = CreateSut(dbContext, _discountProviders, _mediator);
             var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 1, null) };
             var command = new AddItemToCartCommand(cart, 2);
 
@@ -99,7 +99,7 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
 
             var product = new Product { Id = 1 };
             var dbContext = DbContexts.For(product);
-            var sut = CreateSut(dbContext, discountsProvider, _cartService);
+            var sut = CreateSut(dbContext, discountsProvider, _mediator);
             var cart = new List<ItemViewModel> { new ItemViewModel(new ProductViewModel(1, "Product1", 1.0), 1, null) };
             var command = new AddItemToCartCommand(cart, 1);
 
@@ -121,9 +121,9 @@ namespace DiscountStoreTests.Modules.Checkout.Commands
         }
 
         private static AddItemToCartCommandHandler CreateSut(DiscountStoreDbContext discountStoreDbContext,
-            IEnumerable<IDiscountProvider> discountProviders, ICartService cartService)
+            IEnumerable<IDiscountProvider> discountProviders, IMediator mediator)
         {
-            return new AddItemToCartCommandHandler(discountStoreDbContext, discountProviders, cartService);
+            return new AddItemToCartCommandHandler(discountStoreDbContext, discountProviders, mediator);
         }
     }
 }

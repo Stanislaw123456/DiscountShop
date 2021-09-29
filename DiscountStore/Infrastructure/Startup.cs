@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using DiscountStore.Modules.Checkout.Services;
 using DiscountStore.Modules.Discounts.Enums;
 using DiscountStore.Modules.Discounts.Models;
 using DiscountStore.Modules.Discounts.Providers;
@@ -44,7 +43,6 @@ namespace DiscountStore.Infrastructure
         {
             services.AddScoped<IDiscountProvider, TwoForXDiscountTypeProvider>();
             services.AddScoped<IDiscountProvider, ThreeForXDiscountTypeProvider>();
-            services.AddScoped<ICartService, CartService>();
         }
 
         private static void ConfigureInMemoryDatabase(IServiceCollection services)

@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscountStore.Extensions;
 using DiscountStore.Modules.Checkout.Commands;
-using DiscountStore.Modules.Checkout.Services;
+using DiscountStore.Modules.Checkout.Queries;
 using DiscountStore.Modules.Checkout.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -15,20 +14,22 @@ namespace DiscountStore.Modules.Checkout.Controllers
     public class CheckoutController : Controller
     {
         private readonly IMediator _mediator;
-        private readonly ICartService _cartService;
 
-        public CheckoutController(IMediator mediator, ICartService cartService)
+        public CheckoutController(IMediator mediator)
         {
             _mediator = mediator;
-            _cartService = cartService;
         }
 
         [Route("index")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             var cart = HttpContext.Session.GetObjectFromJson<List<ItemViewModel>>("cart") ?? new List<ItemViewModel>();
+
+            var command = new GetTotalQueries(cart);
+            var total = await _mediator.Send(command, cancellationToken);
+            
             ViewBag.cart = cart;
-            ViewBag.total = _cartService.GetTotal(cart);
+            ViewBag.total = total;
 
             return View();
         }

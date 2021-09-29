@@ -1,17 +1,30 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using DiscountStore.Modules.Checkout.ViewModels;
+using MediatR;
 
-namespace DiscountStore.Modules.Checkout.Services
+namespace DiscountStore.Modules.Checkout.Commands
 {
-    public class CartService : ICartService
+    public record MergeDuplicatedItemsCommand(IEnumerable<ItemViewModel> ItemsToMerge)
+        : IRequest<IEnumerable<ItemViewModel>>;
+    
+    public class MergeDuplicatedItemsCommandHandler : IRequestHandler<MergeDuplicatedItemsCommand, IEnumerable<ItemViewModel>>
     {
-        public double GetTotal(IEnumerable<ItemViewModel> cart)
+        public Task<IEnumerable<ItemViewModel>> Handle(MergeDuplicatedItemsCommand request, CancellationToken cancellationToken)
         {
-            return cart?.Sum(item => item.SubTotal) ?? 0;
+            if (request.ItemsToMerge == null)
+            {
+                return Task.FromResult(Enumerable.Empty<ItemViewModel>());
+            }
+
+            var mergedItems = MergeDuplicatedItems(request.ItemsToMerge);
+
+            return Task.FromResult(mergedItems);
         }
         
-        public IEnumerable<ItemViewModel> MergeDuplicatedItems(IEnumerable<ItemViewModel> itemsToMerge)
+        private static IEnumerable<ItemViewModel> MergeDuplicatedItems(IEnumerable<ItemViewModel> itemsToMerge)
         {
             if (itemsToMerge == null)
             {
